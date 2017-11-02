@@ -1,17 +1,17 @@
 import numpy as np
 import time
-poker = np.array(range(0,54))
+poker = np.array(range(0,52))
 empty_array = np.array([])
 
 UNKNOWN = 0
 HIGH_CARD = 1
 ONE_PAIR = 2
 TWO_PAIR = 3
-SET = 4
+SET = 4 #done
 FLUSH = 5
-SAME_COLOR = 6
-HULU = 7
-SITIAO = 8
+SAME_COLOR = 6 #done
+HULU = 7 #done
+SITIAO = 8 # done
 
 def shuffle_poker():
     np.random.shuffle(poker)
@@ -27,36 +27,116 @@ def get_same_color(poker):
     else:
         return empty_array
 
+def get_sitiao(numbers, number_cnt):
+    fours = np.where(number_cnt == 4)
+    if len(fours[0]) > 0:
+        max_type = SITIAO
+        four_number = fours[0][0]
+        if four_number != numbers[-1]:
+            best_numbers = np.array([four_number] * 4 + [numbers[-1]])
+            return best_numbers
+        else:
+            best_numbers = np.array([four_number] * 4 + [numbers[-5]])
+            return best_numbers
+    return empty_array
+
+def get_hulu(number_cnt):
+    threes = np.where(number_cnt == 3)
+    if len(threes[0]) == 2:
+        max_three = threes[0][1]
+        low_pair = threes[0][0]
+        best_number = [max_three] * 3 + [low_pair] * 2
+        return np.array(best_number)
+    if len(threes[0]) == 1:
+        three = threes[0][0]
+        twos = np.where(number_cnt == 2)
+        if len(twos[0]) == 0:
+            return empty_array
+        high_two = twos[0][-1]
+        best_numbers = [three] * 3 + [high_two] * 2
+        return np.array(best_numbers)
+    return empty_array
+
+def get_three(number_cnt):
+    threes = np.where(number_cnt == 3)
+    if len(threes[0]) == 1:
+        three = threes[0][0]
+        ones = np.where(number_cnt == 1)[0]
+        ones[::-1].sort()
+        high_two = ones[0:2]
+        best_number = np.append(np.array([three] * 3), high_two)
+        return best_number
+    return empty_array
+
+def get_pairs(number_cnt):
+    twos = np.where(number_cnt == 2)
+    if len(twos[0]) == 0:
+        return empty_array
+    if len(twos[0]) == 1:
+        two = twos[0][0]
+        ones = np.where(number_cnt == 1)[0]
+        ones[::-1].sort()
+        high_ones = ones[0:3]
+        best_number = np.append(np.array([two] * 2), high_ones)
+        return best_number
+    twos[0][::-1].sort()
+    if len(twos[0]) == 2:
+        high_two = twos[0][0]
+        low_two = twos[0][1]
+        high_one = np.where(number_cnt == 1)[0].max()
+        best_number = [high_two] * 2 + [low_two] * 2 + [high_one]
+        return np.array(best_number)
+    if len(twos[0]) == 3:
+        high_two = twos[0][0]
+        middle_two = twos[0][1]
+        low_two = twos[0][2]
+        one = np.where(number_cnt == 1)[0][0]
+        high_one = max(low_two, one)
+        best_number = [high_two] * 2 + [middle_two]* 2 + [high_one]
+        return np.array(best_number)
+    return empty_array
+
+def get_flush(numbers):
+    np.sort(numbers):
+    return empty_array
+
+    
 def get_max_number(poker):
+    number_type = UNKNOWN
+    max_numbers = empty_array
     numbers = np.sort(np.mod(poker, 13))
     number_cnt = np.bincount(numbers)
-    fours = np.where(number_cnt == 4)
-    if len(fours) > 0:
-        four_number = fours[0]
+    sitiao = get_sitiao(numbers, number_cnt)
+    if len(sitiao) > 0:
+        return (SITIAO, sitiao)
+    hulu = get_hulu(number_cnt)
+    if len(hulu) > 0:
+        return (HULU, hulu)
+    three = get_three(number_cnt)
+    if len(three) > 0:
+        return (SET, three)
+    pairs = get_pairs(number_cnt)
+    if len(pairs) > 0:
+        if len(pairs) < 3:
+            print(poker)
+            print(number_cnt)
+            print(pairs)
+        if pairs[2] == pairs[3]:
+            return (TWO_PAIR, pairs)
+        return (ONE_PAIR, pairs)
+    return empty_array
         
-
-def get_type_with_param(poker):
-    max_poker = empty_array
-    max_type = UNKNOWN
-    k = get_same_color(poker)
-    if len(k) > 0:
-        max_poker = k
-        max_type = SAME_COLOR
-        
-    numbers = poker % 13
-    return -1
-    
 def compare_poker(poker1, poker2):
     type1 = p
 
 def main():
     start = time.time()
-    for i in range(0,10000):
+    for i in range(0,6000000):
         shuffled_poker = shuffle_poker()
         selected = shuffled_poker[0:7]
-        same_color = get_same_color(selected)
-        if len(same_color) > 0:
-            print(same_color, selected)
+        data = get_max_number(selected)
+        #if len(data) > 0 and data[0] == TWO_PAIR:
+        #    print(data, selected)
     end = time.time()
     print('time cost {0}'.format(end - start))
 
