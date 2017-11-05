@@ -1,4 +1,5 @@
-from texas_stategy import *
+import numpy as np
+from texas_strategy import *
 
 FLOP_SHOWED = np.array([1,1,1,0,0])
 TURN_SHOWED = np.array([1,1,1,1,0])

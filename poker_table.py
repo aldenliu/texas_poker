@@ -41,8 +41,9 @@ class Player:
 class PokerGame:
     def __init__(self, player_cnt):
         self._player_cnt = player_cnt
-        self._game_context = GameContext()
         self._players_join_game()
+        chips = [player.chip for player in self._players]
+        self._game_context = GameContext(player_cnt)
         self._shuffled_poker = np.random.shuffle(poker)
         self._deal()
         self._start_game()
