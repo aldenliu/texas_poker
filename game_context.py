@@ -1,4 +1,5 @@
 import numpy as np
+import texas_poker
 from texas_strategy import *
 
 FLOP_SHOWED = np.array([1,1,1,0,0])
@@ -14,7 +15,7 @@ class GameContext():
         self._flop_action = texas_poker.empty_array
         self._turn_action = texas_poker.empty_array
         self._river_action = texas_poker.empty_array
-        self._on_table = np.ones(play_cnt)
+        self._on_table = np.ones(player_cnt)
 
     def set_small_blind(self, player_index):
         self._bets[player_index] += SMALL_BLIND_COST
