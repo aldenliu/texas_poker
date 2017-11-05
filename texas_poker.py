@@ -1,6 +1,5 @@
 import numpy as np
 import time
-poker = np.array(range(0,52))
 empty_array = np.array([])
 
 UNKNOWN = 0
@@ -96,8 +95,20 @@ def get_pairs(number_cnt):
         return np.array(best_number)
     return empty_array
 
-def get_flush(numbers):
-    np.sort(numbers):
+def get_flush(poker_number):
+    numbers = np.unique(poker_number)
+    start = 0
+    end = len(numbers) - 1
+    cur = end
+    while end - cur != 4 and cur >= 0:
+        if numbers[cur] == numbers[cur - 1] + 1:
+            cur -= 1
+        else:
+            end = cur - 1
+            cur -= 1
+    if end - cur == 4:
+        best_number = numbers[end:cur-1:-1]
+        return np.array(best_number)
     return empty_array
 
     
@@ -112,6 +123,9 @@ def get_max_number(poker):
     hulu = get_hulu(number_cnt)
     if len(hulu) > 0:
         return (HULU, hulu)
+    flush = get_flush(numbers)
+    if len(flush) > 0:
+        return(FLUSH, flush)
     three = get_three(number_cnt)
     if len(three) > 0:
         return (SET, three)
@@ -124,22 +138,37 @@ def get_max_number(poker):
         if pairs[2] == pairs[3]:
             return (TWO_PAIR, pairs)
         return (ONE_PAIR, pairs)
-    return empty_array
-        
-def compare_poker(poker1, poker2):
-    type1 = p
+    high_five = numbers[2:]  
+    print(numbers)
+    return (HIGH_CARD, high_five[::-1])
+
+def compare_poker(suite_a, suite_b):
+    (type_a, field_a) = suite_a
+    (type_b, field_b) = suite_b
+    if type_a > type_b:
+        return 1
+    if type_a < type_b:
+        return -1
+    for i in range(0,5):
+        if field_a[i] != field_b[i]:
+            return 1 if field_a[i] > field_b[i] else -1
+    return 0
 
 def main():
     start = time.time()
-    for i in range(0,6000000):
+    for i in range(0,1000000):
         shuffled_poker = shuffle_poker()
         selected = shuffled_poker[0:7]
         data = get_max_number(selected)
-        #if len(data) > 0 and data[0] == TWO_PAIR:
-        #    print(data, selected)
+        if len(data) > 0 and data[0] == HIGH_CARD:
+            print(data, selected)
     end = time.time()
     print('time cost {0}'.format(end - start))
 
-if __name__ == '__main__':
-    main()
+def main1():
+    a = (FLUSH, np.array([12,5,5,5,12]))
+    b = (SITIAO, np.array([10,9,8,7,6]))
+    print(compare_poker(a,b))
 
+if __name__ == '__main__':
+    main1()
