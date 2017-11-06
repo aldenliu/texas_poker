@@ -1,6 +1,7 @@
 import texas_poker
 import numpy as np
 from game_context import GameContext
+from texas_strategy import Strategy
 poker = np.array(range(0,52))
 # ROUND parameter, curerntly useless
 #PRE_FLOP = 1
@@ -71,27 +72,23 @@ class PokerGame:
         self._bid()
 
     def _flop_round(self):
-        poker_start_index = 2 * self._player_cnt
-        flop_poker = self._shuffled_poker[poker_start_index : poker_start_index + 3]
-        self._game_context.set_flop_poker(flop_poker)
+        self._game_context.set_flop_poker()
         self._bid()
 
     def _turn_round(self):
-        poker_start_index = 2 * self._player_cnt + 3
-        turn_poker = self._shuffled_poker[poker_start_index]
-        self._game_context.set_turn_poker(flop_poker)
+        self._game_context.set_turn_poker()
         self._bid()
 
     def _river_round(self):
-        poker_start_index = 2 * self._player_cnt + 4
-        river_poker = self._shuffled_poker[poker_start_index]
-        self._game_context.set_river_poker(river_poker)
-        self.bid()
+        self._game_context.set_river_poker()
+        self._bid()
 
 def main():
     players = []
     for i in range(0, 6):
-        players.append(Player())
+        player = Player()
+        player.set_strategy(Strategy())
+        players.append(player)
     game = PokerGame(players)
 
 if __name__ == '__main__':
