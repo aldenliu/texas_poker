@@ -14,9 +14,10 @@ BIG_BLIND_COST = SMALL_BLIND_COST * 2
 
 class Player:
     def __init__(self):
-        self.chip = 10000
+        self._chip = 10000
         self._is_fold = False
         self._bet = 0
+        self._on_table = True
         pass
 
     def set_game_context(self, context):
@@ -29,16 +30,22 @@ class Player:
         self._draw_poker = draw_poker
 
     def do_small_blind(self):
-        self.chip -= SMALL_BLIND_COST
+        self._chip -= SMALL_BLIND_COST
         self._bet += SMALL_BLIND_COST
 
     def do_big_blind(self):
-        self.chip -= BIG_BLIND_COST
+        self._chip -= BIG_BLIND_COST
         self._bet += BIG_BLIND_COST
 
-    def action(self):
-        return self._strategy.action()
+    def is_on_table(self):
+        return self._on_table
 
+    def action(self):
+        cur_bid = self._game_context.get_cur_bid()
+        (action, cost) = self._strategy.action(self._chip, self._bet, cur_bid)
+        if action == FOLD:
+            self._on_table = False
+        return (action, cost)
 class PokerGame:
     def __init__(self, players):
         self._player_cnt = len(players)
@@ -64,7 +71,9 @@ class PokerGame:
 
     def _bid(self):
         for i in range(0, self._player_cnt):
-            self._players[i].action()
+            if self._players[i].is_on_table():
+                (action, cost) = self._players[i].action()
+                self._game_context.record_action(i, action, cost)
 
     def _pre_flop(self):
         self._players[0].do_small_blind()

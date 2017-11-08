@@ -1,3 +1,4 @@
+import random
 UNKOWN = 0
 FOLD = 1
 CALL = 2
@@ -9,10 +10,18 @@ class Strategy():
     def __init__(self):
         pass
 
-    def action(self):
-        return FOLD
-
-
+    def action(self, chip, bet, cur_bid):
+        return UNKOWN
 class RandomStrategy(Strategy):
     def __init__(self):
         pass
+
+    def action(self):
+        behavior = random.randint(1,5)
+        if behavior == RAISE:
+            return (RAISE, chip / 3)
+        if behavior == RERAISE:
+            return (RERAISE, cur_bid * 2)
+        else:
+            return (behavior, 0)
+

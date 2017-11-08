@@ -18,6 +18,9 @@ class GameContext():
         self._river_action = texas_poker.empty_array
         self._on_table = np.ones(player_cnt)
 
+    def get_cur_bid(self):
+        return self._cur_bid
+
     def set_small_blind(self, player_index):
         self._bets[player_index] += SMALL_BLIND_COST
         self._cur_bid = SMALL_BLIND_COST
@@ -43,7 +46,7 @@ class GameContext():
         self._bet[player_index] += self._cur_inc_bid
         self._action[player_index] = CALL
 
-    def record_action(self, player_index, turn, action, bid_cost = 0):
+    def record_action(self, player_index, action, bid_cost = 0):
         if action == FOLD:
             self._on_table[player_index] = 0
             pass
