@@ -46,9 +46,11 @@ class Player:
         if action == FOLD:
             self._on_table = False
         return (action, cost)
+
 class PokerGame:
     def __init__(self, players):
         self._player_cnt = len(players)
+        self._available_player_cnt = len(players)
         self._players = players
         chips = [player.chip for player in self._players]
         self._game_context = GameContext(self._player_cnt, chips)
@@ -64,32 +66,40 @@ class PokerGame:
             self._players[i].draw(draw_poker)
 
     def _start_game(self):
-        self._pre_flop()
-        self._flop_round()
-        self._turn_round()
-        self._river_round()
+        if self._pre_flop() == 1:
+            return self._end()
+        if self._flop_round() == 1:
+            return self._end()
+        if self._turn_round() == 1:
+            return self._end()
+        if self._river_round() == 1:
+            return self._end()
 
     def _bid(self):
         for i in range(0, self._player_cnt):
             if self._players[i].is_on_table():
                 (action, cost) = self._players[i].action()
+                if not self._players[i].is_on_table():
+                    self._available_player_cnt -= 1
                 self._game_context.record_action(i, action, cost)
+            return 1
+        return 0
 
     def _pre_flop(self):
         self._players[0].do_small_blind()
         self._players[1].do_big_blind()
-        self._bid()
+        return self._bid()
 
     def _flop_round(self):
         self._game_context.set_flop_poker()
-        self._bid()
+        return self._bid()
 
     def _turn_round(self):
         self._game_context.set_turn_poker()
-        self._bid()
+        return self._bid()
 
     def _river_round(self):
-        self._game_context.set_river_poker()
+        return self._game_context.set_river_poker()
         self._bid()
 
 def main():
