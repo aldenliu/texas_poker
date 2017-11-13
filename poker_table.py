@@ -1,7 +1,10 @@
 import texas_poker
 import numpy as np
 from game_context import GameContext
-from texas_strategy import Strategy
+from texas_strategy import RandomStrategy
+from texas_poker import compare_poker, get_max_number
+from texas_strategy import FOLD, CALL, RAISE, RERAISE, CHECK
+import pdb
 poker = np.array(range(0,52))
 # ROUND parameter, curerntly useless
 #PRE_FLOP = 1
@@ -29,6 +32,9 @@ class Player:
     def draw(self, draw_poker):
         self._draw_poker = draw_poker
 
+    def set_win_bets(self, win_bets):
+        self._chip += win_bets
+
     def do_small_blind(self):
         self._chip -= SMALL_BLIND_COST
         self._bet += SMALL_BLIND_COST
@@ -47,13 +53,18 @@ class Player:
             self._on_table = False
         return (action, cost)
 
+    def get_poker(self):
+        return self._draw_poker
+
 class PokerGame:
     def __init__(self, players):
         self._player_cnt = len(players)
         self._available_player_cnt = len(players)
         self._players = players
-        chips = [player.chip for player in self._players]
+        chips = [player._chip for player in self._players]
         self._game_context = GameContext(self._player_cnt, chips)
+        for player in self._players:
+            player.set_game_context(self._game_context)
         np.random.shuffle(poker)
         self._shuffled_poker = poker
         self._deal()
@@ -64,6 +75,23 @@ class PokerGame:
         for i in range(self._player_cnt):
             draw_poker = self._shuffled_poker[i*2: i*2+2]
             self._players[i].draw(draw_poker)
+        self._game_context.set_table_poker(self._shuffled_poker[self._player_cnt * 2 : self._player_cnt * 2 + 5])
+
+    def _end(self):
+        on_table_status = [player.is_on_table() for player in self._players]
+        on_table_cnt = on_table_status.count(True)
+        candidate_index = on_table_status.index(True)
+        for i in range(1, on_table_cnt):
+            competitor_index = on_table_status.index(True)
+            candidate_poker = np.append(self._players[candidate_index].get_poker(), self._game_context.get_table_poker())
+            competitor_poker = np.append(self._players[competitor_index].get_poker(), self._game_context.get_table_poker())
+            candidate_best = get_max_number(candidate_poker)
+            competitor_best = get_max_number(competitor_poker)
+            if compare_poker(candidate_best, competitor_best) < 0:
+                candidate_index = competitor_index
+        win_index = candidate_index
+        win_bets = self._game_context.get_all_bets()
+        self._players[win_index].set_win_bets(win_bets)
 
     def _start_game(self):
         if self._pre_flop() == 1:
@@ -106,7 +134,7 @@ def main():
     players = []
     for i in range(0, 6):
         player = Player()
-        player.set_strategy(Strategy())
+        player.set_strategy(RandomStrategy())
         players.append(player)
     game = PokerGame(players)
 

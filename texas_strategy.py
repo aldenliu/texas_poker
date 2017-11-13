@@ -11,12 +11,13 @@ class Strategy():
         pass
 
     def action(self, chip, bet, cur_bid):
-        return UNKOWN
+        return (UNKOWN, 0)
+
 class RandomStrategy(Strategy):
     def __init__(self):
         pass
 
-    def action(self):
+    def action(self, chip, bet, cur_bid):
         behavior = random.randint(1,5)
         if behavior == RAISE:
             return (RAISE, chip / 3)
