@@ -17,6 +17,7 @@ class GameContext():
         self._turn_action = texas_poker.empty_array
         self._river_action = texas_poker.empty_array
         self._on_table = np.ones(player_cnt)
+        self._action = []
 
     def get_cur_bid(self):
         return self._cur_bid
@@ -50,7 +51,14 @@ class GameContext():
 
     def _call(self, player_index):
         self._bets[player_index] += self._cur_inc_bid
-        self._action[player_index] = CALL
+        self._action.append((player_index, CALL, 0))
+
+    def _check(self, player_index):
+        self._action.append((player_index, CHECK, 0))
+
+    def _raise(self, player_index, raise_bid):
+        self._cur_inc_bid += raise_bid
+        self._bets[player_index] += self._cur_inc_bid
 
     def record_action(self, player_index, action, bid_cost = 0):
         if action == FOLD:
@@ -60,5 +68,9 @@ class GameContext():
             self._call(player_index)
             return
         if action == CHECK:
+            self._check(player_index)
+            return
+        elif action == RAISE:
+            self._raise(player_index, bid_cost)
             return
 

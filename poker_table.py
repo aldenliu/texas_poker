@@ -137,6 +137,8 @@ def main():
         player.set_strategy(RandomStrategy())
         players.append(player)
     game = PokerGame(players)
+    bets = [player.get_bets() for player in players]
+    print(bets)
 
 if __name__ == '__main__':
     main()
