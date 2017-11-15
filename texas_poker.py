@@ -131,15 +131,10 @@ def get_max_number(poker):
         return (SET, three)
     pairs = get_pairs(number_cnt)
     if len(pairs) > 0:
-        if len(pairs) < 3:
-            print(poker)
-            print(number_cnt)
-            print(pairs)
         if pairs[2] == pairs[3]:
             return (TWO_PAIR, pairs)
         return (ONE_PAIR, pairs)
     high_five = numbers[2:]  
-    print(numbers)
     return (HIGH_CARD, high_five[::-1])
 
 def compare_poker(suite_a, suite_b):

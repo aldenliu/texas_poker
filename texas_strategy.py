@@ -33,22 +33,22 @@ class RandomStrategy(Strategy):
             return True
         return False
 
-    def action(self, chip, bet, cur_bid):
+    def action(self, chip, bet, cur_bid, self_bid):
         prev_action = self._game_context.get_prev_action()
         behavior = random.randint(1,5)
         while not self._is_behavior_valid(prev_action, behavior):
             behavior = random.randint(1,5)
         if behavior == RAISE:
             total_bet = self._game_context.get_all_bets()
-            bet = max(cur_bid * 2, int(total_bet / 3))
-            bet = min(bet, chip)
+            bet = max(cur_bid * 2, int(total_bet / 3)) - self_bid
+            bet = min(bet, chip) 
             return (RAISE, bet)
         elif behavior == RERAISE:
-            bet = cur_bid * 2
+            bet = cur_bid * 2 - self_bid
             bet = min(bet, chip)
             return (RERAISE, bet)
         elif behavior == CALL:
-            bet = min(cur_bid, chip)
+            bet = min(cur_bid - self_bid, chip)
             return (behavior, bet)
         else:
             return (behavior, 0)
